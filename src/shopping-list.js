@@ -61,7 +61,6 @@ const handleNewItemSubmit = function () {
     api.createItem(newItemName)
       //turn results of the fetch into a JSON object
       .then(results => results.json())
-
       .then((newItem) => {
         store.addItem(newItem);
         console.log(newItem);
@@ -74,10 +73,22 @@ const handleNewItemSubmit = function () {
 const handleItemCheckClicked = function () {
   $(".js-shopping-list").on("click", ".js-item-toggle", event => {
     const id = getItemIdFromElement(event.currentTarget);
-    store.findAndToggleChecked(id);
-    render();
-  });
-};
+    //call id from local store
+    const item = store.findById(id);
+    //call the url and update properties of the api
+    api.updateItem(id, { checked: !item.checked })
+      //turn url response into a JS Object
+      .then(response => response.json())
+      //access the item and//UPDATE STORE 
+      .then(() => {
+        store.findAndUpdate(id, { checked: !item.checked });
+        render();
+      })
+      .catch((error) => {
+        console.log('something went wrong', error)
+      });
+  }
+}
 
 const getItemIdFromElement = function (item) {
   return $(item)
@@ -120,6 +131,13 @@ const handleEditShoppingItemSubmit = function () {
       .find(".shopping-item")
       .val();
     store.findAndUpdateName(id, itemName);
+    store.findAndUpdate(id, itemName);
+    api.updateItem(id, { itemName })
+      .then(response => response.json())
+      .then(itemName => {
+        store.findAndUpdate(id, { itemName });
+        render();
+      });
     render();
   });
 };
