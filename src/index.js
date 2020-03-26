@@ -11,10 +11,23 @@ import "./index.css";
 const main = function () {
   api.getItems()
     .then(res => res.json())
-    .then(res => console.log(res));
+    .then((items) => {
+      items.forEach((item) => store.addItem(item));
+      shoppingList.render();
+    });
+  api.createItem('pears')
+    .then(res => res.json())
+    .then((newItem) => {
+      store.addItem(newItem);
+
+    })
+    .then(res => res.json())
+    .then((items) => {
+      console.log(items);
+    });
+
 
   shoppingList.bindEventListeners();
   shoppingList.render();
 };
-
 $(main);

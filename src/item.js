@@ -11,7 +11,7 @@ function create(name) {
     id: cuid(),
     name,
     checked: false
-  }
+  };
 }
 
 export default {
