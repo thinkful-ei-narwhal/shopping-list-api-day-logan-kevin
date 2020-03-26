@@ -5,5 +5,6 @@ export default {
 const BASE_URL = 'https://thinkful-list-api.herokuapp.com/logankevin';
 
 function getItems() {
-  return Promise.resolve('A successful response!');
+  return fetch(`${BASE_URL}/items`);
+
 }
