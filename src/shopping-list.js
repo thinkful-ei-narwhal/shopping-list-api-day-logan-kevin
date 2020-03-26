@@ -3,7 +3,7 @@ import store from "./store";
 import item from "./item";
 import api from "./api";
 
-const generateItemElement = function(item) {
+const generateItemElement = function (item) {
   let itemTitle = `<span class="shopping-item shopping-item__checked">${item.name}</span>`;
   if (!item.checked) {
     itemTitle = `
@@ -27,12 +27,12 @@ const generateItemElement = function(item) {
     </li>`;
 };
 
-const generateShoppingItemsString = function(shoppingList) {
+const generateShoppingItemsString = function (shoppingList) {
   const items = shoppingList.map(item => generateItemElement(item));
   return items.join("");
 };
 
-const render = function() {
+const render = function () {
   // Filter item list if store prop is true by item.checked === false
   let items = [...store.items];
   if (store.hideCheckedItems) {
@@ -53,22 +53,26 @@ const render = function() {
 //   }
 // };
 
-const handleNewItemSubmit = function() {
-  $("#js-shopping-list-form").submit(function(event) {
+const handleNewItemSubmit = function () {
+  $("#js-shopping-list-form").submit(function (event) {
     event.preventDefault();
     const newItemName = $(".js-shopping-list-entry").val();
     $(".js-shopping-list-entry").val("");
+    //fetch something
     api.createItem(newItemName)
-      .then(res => res.json())
+      //turn results of the fetch into a JSON object
+      .then(results => results.json())
+
       .then((newItem) => {
+        store.addItem(newItem);
         console.log(newItem);
-        // store.addItem(newItem);
         render();
       });
+    console.log(newItemName);
   });
 };
 
-const handleItemCheckClicked = function() {
+const handleItemCheckClicked = function () {
   $(".js-shopping-list").on("click", ".js-item-toggle", event => {
     const id = getItemIdFromElement(event.currentTarget);
     store.findAndToggleChecked(id);
@@ -76,13 +80,13 @@ const handleItemCheckClicked = function() {
   });
 };
 
-const getItemIdFromElement = function(item) {
+const getItemIdFromElement = function (item) {
   return $(item)
     .closest(".js-item-element")
     .data("item-id");
 };
 
-const handleDeleteItemClicked = function() {
+const handleDeleteItemClicked = function () {
   // like in `handleItemCheckClicked`, we use event delegation
   $(".js-shopping-list").on("click", ".js-item-delete", event => {
     const id = getItemIdFromElement(event.currentTarget);
@@ -94,7 +98,7 @@ const handleDeleteItemClicked = function() {
 /**
  * Toggles the store.hideCheckedItems property
  */
-const toggleCheckedItemsFilter = function() {
+const toggleCheckedItemsFilter = function () {
   store.hideCheckedItems = !store.hideCheckedItems;
 };
 
@@ -102,14 +106,14 @@ const toggleCheckedItemsFilter = function() {
  * Places an event listener on the checkbox
  * for hiding completed items.
  */
-const handleToggleFilterClick = function() {
+const handleToggleFilterClick = function () {
   $(".js-filter-checked").click(() => {
     store.toggleCheckedFilter();
     render();
   });
 };
 
-const handleEditShoppingItemSubmit = function() {
+const handleEditShoppingItemSubmit = function () {
   $(".js-shopping-list").on("submit", ".js-edit-item", event => {
     event.preventDefault();
     const id = getItemIdFromElement(event.currentTarget);
@@ -121,7 +125,7 @@ const handleEditShoppingItemSubmit = function() {
   });
 };
 
-const bindEventListeners = function() {
+const bindEventListeners = function () {
   handleNewItemSubmit();
   handleItemCheckClicked();
   handleDeleteItemClicked();
