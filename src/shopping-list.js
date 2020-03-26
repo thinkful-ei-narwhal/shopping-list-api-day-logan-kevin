@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import store from "./store";
 import item from "./item";
+import api from "./api";
 
 const generateItemElement = function(item) {
   let itemTitle = `<span class="shopping-item shopping-item__checked">${item.name}</span>`;
@@ -43,22 +44,27 @@ const render = function() {
   $(".js-shopping-list").html(shoppingListItemsString);
 };
 
-const addItemToShoppingList = function(itemName) {
-  try {
-    item.validateName(itemName);
-    store.items.push(item.create(itemName));
-  } catch (error) {
-    console.log(`Cannot add item: ${error.message}`);
-  }
-};
+// const addItemToShoppingList = function(itemName) {
+//   try {
+//     item.validateName(itemName);
+//     store.items.push(item.create(itemName));
+//   } catch (error) {
+//     console.log(`Cannot add item: ${error.message}`);
+//   }
+// };
 
 const handleNewItemSubmit = function() {
   $("#js-shopping-list-form").submit(function(event) {
     event.preventDefault();
     const newItemName = $(".js-shopping-list-entry").val();
     $(".js-shopping-list-entry").val("");
-    addItemToShoppingList(newItemName);
-    render();
+    api.createItem(newItemName)
+      .then(res => res.json())
+      .then((newItem) => {
+        console.log(newItem);
+        // store.addItem(newItem);
+        render();
+      });
   });
 };
 
