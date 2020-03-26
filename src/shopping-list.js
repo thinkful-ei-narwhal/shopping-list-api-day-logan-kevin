@@ -1,6 +1,5 @@
 import $ from 'jquery';
 import store from "./store";
-import item from "./item";
 import api from "./api";
 
 const generateItemElement = function (item) {
