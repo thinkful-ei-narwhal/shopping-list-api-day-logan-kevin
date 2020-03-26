@@ -6,7 +6,14 @@ import item from "./item";
 
 import "./index.css";
 
+import api from './api';
+
 const main = function() {
+  api.getItems()
+    .then(res => console.log(res));
+
+  console.log(api.BASE_URL);
+
   shoppingList.bindEventListeners();
   shoppingList.render();
 };
