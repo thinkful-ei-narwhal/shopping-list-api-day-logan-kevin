@@ -1,62 +1,38 @@
 const BASE_URL = 'https://thinkful-list-api.herokuapp.com/logankevin';
+//GLOBAL BAD!!
+// function getItems() {
+//   return fetch(`${BASE_URL}/items`);
+// }
 
+// function createItem(name) {
+//   let newItem = {};
+//   newItem.name = name;
+//   return fetch(`${BASE_URL}/items`, {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     body: JSON.stringify(newItem),
+//   });
+// }
 function getItems() {
-  return fetch(`${BASE_URL}/items`);
+  let url = `${BASE_URL}/items`;
+  return listApiFetch(url);
 }
 
 function createItem(name) {
   let newItem = {};
   newItem.name = name;
-  return fetch(`${BASE_URL}/items`,{
+  const option = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(newItem),
-  });
+  };
+  let url = `${BASE_URL}/items`;
+  return listApiFetch(url, option);
 }
-
-// //
-// //SOLUTION THAT ISNT HORRIBLY BROKEN
-// function createItem(name) {
-//   let newItem = {};
-//   newItem.name = name;
-//   const options = {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify(newItem)
-//   };
-//   return fetch(`${BASE_URL}/items`, options);
-// }
-
-
-//SOLUTION THAT ISNT HORRIBLY BROKEN
-// const createItem = function (name) {
-//   console.log(name);
-//   const newItem = JSON.stringify({ name: name });
-//   console.log(newItem);
-//   const options = {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: newItem
-//   };
-//   return fetch(`${BASE_URL}/items`, options);
-// };
-// const createItem = function (name) {
-//   //make object
-//   const newItem = JSON.stringify({ name });
-//   //set the name of the new object to Parameter name
-
-//   console.log(newItem);
-
-//   return fetch(`${BASE_URL}/items`, {
-//     method: 'POST',
-//     headers: {
-//       'Content-type': 'application/json',
-//       body: newItem
-//     },
-//   });
-// };
 
 function updateItem(id, updateData) {
   let data = updateData;
@@ -65,13 +41,44 @@ function updateItem(id, updateData) {
     headers: {
       'Content-Type': 'application/json',
     },
+    //server only reads a string
     body: JSON.stringify(data),
-  }
-  return fetch(`${BASE_URL}/items/${id}`, option);
+  };
+  //send server data to api
+  let url = `${BASE_URL}/items/${id}`;
+  return listApiFetch(url, option);
+  // return fetch(`${BASE_URL}/items/${id}`, option);
+}
+
+function listApiFetch(...args) {
+  let error;
+  return fetch(...args)
+    .then(res => {
+      if (res.ok) {
+        // Valid HTTP response but non-2xx status - let's create an error!
+        error = { code: res.status };
+      }
+
+      // In either case, parse the JSON stream:
+      return res.json();
+    })
+
+    .then(data => {
+      // If error was flagged, reject the Promise with the error object
+      if (error) {
+        error.message = data.message;
+        return Promise.reject(error);
+      }
+
+      // Otherwise give back the data as resolved Promise
+      return data;
+    });
 }
 
 export default {
   getItems,
   createItem,
   updateItem,
+  listApiFetch,
 };
+

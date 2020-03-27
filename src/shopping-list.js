@@ -43,15 +43,6 @@ const render = function () {
   $(".js-shopping-list").html(shoppingListItemsString);
 };
 
-// const addItemToShoppingList = function(itemName) {
-//   try {
-//     item.validateName(itemName);
-//     store.items.push(item.create(itemName));
-//   } catch (error) {
-//     console.log(`Cannot add item: ${error.message}`);
-//   }
-// };
-
 const handleNewItemSubmit = function () {
   $("#js-shopping-list-form").submit(function (event) {
     event.preventDefault();
@@ -88,70 +79,79 @@ const handleItemCheckClicked = function () {
         console.log('something went wrong', error)
       });
   }
-}
 
 const getItemIdFromElement = function (item) {
-  return $(item)
-    .closest(".js-item-element")
-    .data("item-id");
-};
+    return $(item)
+      .closest(".js-item-element")
+      .data("item-id");
+  };
 
-const handleDeleteItemClicked = function () {
-  // like in `handleItemCheckClicked`, we use event delegation
-  $(".js-shopping-list").on("click", ".js-item-delete", event => {
-    const id = getItemIdFromElement(event.currentTarget);
-    store.findAndDelete(id);
-    render();
-  });
-};
+  const handleDeleteItemClicked = function () {
+    // like in `handleItemCheckClicked`, we use event delegation
+    $(".js-shopping-list").on("click", ".js-item-delete", event => {
+      //cal id from local store
+      const id = getItemIdFromElement(event.currentTarget);
+      // this.items = this.items.filter(item => item.id !== id);
+      //call url and turn it inot a JSON object
+      api.updateItem(id, item)
+      //turn the URL response into a JSON object
+      then(response => response.json())
+        //access the item and update the local store
+        .then(() => {
+          //look at all the object keys in the JSON object and select items by ID
+          store.findAndUpdate(id, { item: [''] })
+          render();
+        }
+          //idk if this works ye
+        );
+    }
 
-/**
- * Toggles the store.hideCheckedItems property
- */
-const toggleCheckedItemsFilter = function () {
-  store.hideCheckedItems = !store.hideCheckedItems;
-};
-
-/**
- * Places an event listener on the checkbox
- * for hiding completed items.
- */
-const handleToggleFilterClick = function () {
-  $(".js-filter-checked").click(() => {
-    store.toggleCheckedFilter();
-    render();
-  });
-};
-
-const handleEditShoppingItemSubmit = function () {
-  $(".js-shopping-list").on("submit", ".js-edit-item", event => {
-    event.preventDefault();
-    const id = getItemIdFromElement(event.currentTarget);
-    const itemName = $(event.currentTarget)
-      .find(".shopping-item")
-      .val();
-    store.findAndUpdateName(id, itemName);
-    store.findAndUpdate(id, itemName);
-    api.updateItem(id, { itemName })
-      .then(response => response.json())
-      .then(itemName => {
-        store.findAndUpdate(id, { itemName });
+  /**
+   * Toggles the store.hideCheckedItems property
+   */
+    /**
+     * Places an event listener on the checkbox
+     * for hiding completed items.
+     */
+    const handleToggleFilterClick = function () {
+      $(".js-filter-checked").click(() => {
+        store.toggleCheckedFilter();
         render();
       });
-    render();
-  });
-};
+    };
 
-const bindEventListeners = function () {
-  handleNewItemSubmit();
-  handleItemCheckClicked();
-  handleDeleteItemClicked();
-  handleEditShoppingItemSubmit();
-  handleToggleFilterClick();
-};
+    const handleEditShoppingItemSubmit = function () {
+      $(".js-shopping-list").on("submit", ".js-edit-item", event => {
+        event.preventDefault();
+        const id = getItemIdFromElement(event.currentTarget);
+        const itemName = $(event.currentTarget)
+          .find(".shopping-item")
+          .val();
+        store.findAndUpdateName(id, itemName);
+        store.findAndUpdate(id, itemName);
+        api.updateItem(id, { itemName })
+          .then(response => response.json())
+          .then(itemName => {
+            store.findAndUpdate(id, { itemName });
+            render();
+          });
+        render();
+      });
+    };
 
-// This object contains the only exposed methods from this module:
-export default {
-  render,
-  bindEventListeners
-};
+    const bindEventListeners = function () {
+      handleNewItemSubmit();
+      handleItemCheckClicked();
+      handleDeleteItemClicked();
+      handleEditShoppingItemSubmit();
+      handleToggleFilterClick();
+    };
+
+    // This object contains the only exposed methods from this module:
+    export default {
+      render,
+      bindEventListeners
+    }
+  }
+}
+//call the same display error function for every
